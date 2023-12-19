@@ -1,10 +1,10 @@
 import pandas as pd
 
 # Load synthetic dataset
-synthetic_df = pd.read_csv("mandi_dataset.csv")
+synthetic_df = pd.read_csv("base_mandi_dataset.csv")
 
 # Load special occasion dataset
-special_occasion_df = pd.read_csv("special_occasion.csv")
+special_occasion_df = pd.read_csv("int_special_occasion.csv")
 
 # Convert 'Date' column to datetime type
 synthetic_df['Date'] = pd.to_datetime(synthetic_df['Date'])
@@ -26,4 +26,4 @@ merged_df.loc[~merged_df['special occasion'].isna(), 'Special Occasion'] = merge
 merged_df = merged_df.drop(columns=['special occasion'])
 
 # Save the merged DataFrame to a new CSV file
-merged_df.to_csv("mandi_merged_dataset.csv", index=False)
+merged_df.to_csv("S_o_mandi_dataset.csv", index=False)
