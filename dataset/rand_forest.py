@@ -1,52 +1,46 @@
 import pandas as pd
-from datetime import datetime, timedelta
+from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
-import numpy as np
+from sklearn.metrics import mean_squared_error
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.compose import ColumnTransformer
 
-# Load the dataset
-dataset_path = "mandi_merged_dataset.csv"
-df = pd.read_csv(dataset_path)
+# Read the CSV file
+df = pd.read_csv('Final_merged_dataset.csv')
 
-# Convert categorical variables to numerical
-df = pd.get_dummies(df, columns=["Day", "Month", "Special Occasion"])
+# Remove leading and trailing whitespaces in column names
+df.columns = df.columns.str.strip()
 
-# Split the dataset into features (X) and target variable (y)
-X = df.drop(["Date", "Food item", "Qty"], axis=1)
-y = df["Qty"]
+# Convert categorical columns to numerical using Label Encoding
+label_encoder = LabelEncoder()
+
+# Assuming 'Special Occasion' is the correct column name
+df['Special_Occasion'] = label_encoder.fit_transform(df['Special Occasion'])
+
+# One-hot encode the 'Food item' column
+onehot_encoder = OneHotEncoder(sparse=False, handle_unknown='ignore')
+df_food_encoded = pd.DataFrame(onehot_encoder.fit_transform(df[['Food item']]))
+df = pd.concat([df, df_food_encoded], axis=1)
+
+# Drop the original 'Food item' column
+df = df.drop(['Food item'], axis=1)
+
+# Separate features (X) and target variable (y)
+X = df.drop(['Qty', 'Date'], axis=1)
+y = df['Qty']
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # Initialize the Random Forest Regressor
 rf_regressor = RandomForestRegressor(n_estimators=100, random_state=42)
 
-# Fit the model
-rf_regressor.fit(X, y)
+# Fit the model on the training data
+rf_regressor.fit(X_train, y_train)
 
-# Now, let's predict the sales data for the year 2024
-# Generate dates for the year 2024
-start_date_2024 = pd.to_datetime("2024-01-01")
-end_date_2024 = pd.to_datetime("2024-12-31")
-date_range_2024 = pd.date_range(start=start_date_2024, end=end_date_2024, freq="D")
+# Make predictions on the test data
+predictions = rf_regressor.predict(X_test)
 
-# Create a DataFrame with the features for the year 2024
-features_2024 = pd.DataFrame({"Date": date_range_2024})
-
-# Extract day, month, and special occasion information from the date
-features_2024["Day"] = features_2024["Date"].dt.day_name()
-features_2024["Month"] = features_2024["Date"].dt.month_name()
-features_2024["Special Occasion"] = "Normal Day"  # Assuming it's a normal day by default
-
-# Convert categorical variables to numerical
-features_2024 = pd.get_dummies(features_2024, columns=["Day", "Month", "Special Occasion"])
-
-# Ensure feature names match between training and test sets
-missing_features = set(X.columns) - set(features_2024.columns)
-for feature in missing_features:
-    features_2024[feature] = 0
-
-# Make predictions for the year 2024
-predictions_2024 = rf_regressor.predict(features_2024.drop("Date", axis=1))
-
-# Create a DataFrame with the predicted quantities and corresponding dates
-predicted_df = pd.DataFrame({"Date": date_range_2024, "Predicted Qty": predictions_2024})
-
-# Save the predicted data to a CSV file
-predicted_df.to_csv("predicted_mandi.csv", index=False)
+# Evaluate the model performance
+mse = mean_squared_error(y_test, predictions)
+print(f"Mean Squared Error on the test set: {mse}")
