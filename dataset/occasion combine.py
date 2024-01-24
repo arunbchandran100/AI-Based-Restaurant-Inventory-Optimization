@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Load synthetic dataset
-synthetic_df = pd.read_csv("base_mandi_dataset.csv")
+synthetic_df = pd.read_csv("3_items_dataset.csv")
 
 # Load special occasion dataset
 special_occasion_df = pd.read_csv("int_special_occasion.csv")
@@ -26,4 +26,4 @@ merged_df.loc[~merged_df['special occasion'].isna(), 'Special Occasion'] = merge
 merged_df = merged_df.drop(columns=['special occasion'])
 
 # Save the merged DataFrame to a new CSV file
-merged_df.to_csv("S_o_mandi_dataset.csv", index=False)
+merged_df.to_csv("Sp_occ_3_items_dataset.csv", index=False)

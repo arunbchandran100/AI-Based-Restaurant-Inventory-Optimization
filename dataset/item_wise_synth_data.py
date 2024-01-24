@@ -10,7 +10,7 @@ end_date = datetime(2023, 12, 31)
 date_range = [start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)]
 
 # Define food items
-food_items = ["mandi"]
+food_items = ["1","2","3"]
 
 # Set random seed for reproducibility
 np.random.seed(42)
@@ -40,4 +40,4 @@ columns = ["Date", "Food item", "Qty", "Temperature", "Precipitation", "Day", "M
 df = pd.DataFrame(data, columns=columns)
 
 # Save DataFrame to CSV
-df.to_csv("mandi_dataset.csv", index=False)
+df.to_csv("3_items_dataset.csv", index=False)

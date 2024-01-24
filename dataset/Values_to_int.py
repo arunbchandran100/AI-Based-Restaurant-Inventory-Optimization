@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Read the CSV file
-df = pd.read_csv('S_o_synthatic_dataset.csv')
+df = pd.read_csv('Sp_occ_3_items_dataset.csv')
 
 # Define mapping dictionaries
 day_mapping = {'Sunday': 1, 'Monday': 2, 'Tuesday': 3, 'Wednesday': 4, 'Thursday': 5, 'Friday': 6, 'Saturday': 7}
@@ -49,6 +49,6 @@ df.loc[df['Special Occasion'].isin(muslim_events), 'Special Occasion Category'] 
 df.loc[df['Special Occasion'].isin(christian_events), 'Special Occasion Category'] = 5
 
 # Save the modified DataFrame to a new CSV file
-df.to_csv('Final_synthatic_dataset.csv', index=False)
+df.to_csv('Final_3_items_dataset.csv', index=False)
 
 print("Conversion completed. Check 'output.csv'")
