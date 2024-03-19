@@ -1,0 +1,70 @@
+{% extends "layouts/base.html" %} 
+{% block title %}Dashboard{% endblock %} 
+{% block content %}
+<div class="content">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card card-user">
+        <div class="card-header">
+          <h5 class="card-title">Enter Date Range</h5>
+        </div>
+        <div class="card-body">
+          <form method="POST">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-md-6 pr-1">
+                <div class="form-group">
+                  <label>Start Date</label>
+                  <input type="date" class="form-control" name="start_date" />
+                </div>
+              </div>
+              <div class="col-md-6 px-1">
+                <div class="form-group">
+                  <label>End Date</label>
+                  <input type="date" class="form-control" name="end_date" />
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="update ml-auto mr-auto">
+                <button type="submit" class="btn btn-primary btn-round">
+                  Submit
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% if food_materials %}
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">Required Food Materials</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead class="text-primary">
+                <th>Food Item</th>
+                <th>Required Quantity</th>
+              </thead>
+              <tbody>
+                {% for material in food_materials %}
+                <tr>
+                  <td>{{ material.food_item }}</td>
+                  <td>{{ material.quantity }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock content %}
