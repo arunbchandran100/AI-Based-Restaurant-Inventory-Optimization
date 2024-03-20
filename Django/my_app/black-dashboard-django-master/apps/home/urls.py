@@ -1,13 +1,10 @@
-# -*- encoding: utf-8 -*-
-"""
-Copyright (c) 2019 - present AppSeed.us
-"""
-
 from django.urls import path, re_path
 from apps.home import views
+from .views import register
 
 urlpatterns = [
 
+    path('register/', register, name='register'),
     # The home page
     path('', views.index, name='home'),
 
