@@ -1,13 +1,16 @@
-{% extends "layouts/base.html" %} 
-{% block title %}Dashboard{% endblock %} 
+{% extends "layouts/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
 {% block content %}
 <div class="content">
   <div class="row">
     <div class="col-md-6">
       <div class="card card-user">
         <div class="card-header">
-          <h5 class="card-title">Enter Date Range</h5>
+          <h5 class="card-title" style="font-weight: bold;">Enter Date Range</h5>
         </div>
+        
         <div class="card-body">
           <form method="POST">
             {% csrf_token %}
@@ -37,27 +40,50 @@
       </div>
     </div>
   </div>
-  {% if food_materials %}
+  
+  <!-- Mock data for presentation -->
   <div class="row">
     <div class="col-md-12">
       <div class="card">
         <div class="card-header">
-          <h5 class="card-title">Required Food Materials</h5>
+          <h5 class="card-title" style="font-weight: bold;">Required Raw Materials from 2024-03-01 to 2024-03-07</h5>
         </div>
         <div class="card-body">
           <div class="table-responsive">
             <table class="table">
               <thead class="text-primary">
-                <th>Food Item</th>
+                <th>Raw Material</th>
                 <th>Required Quantity</th>
               </thead>
               <tbody>
-                {% for material in food_materials %}
                 <tr>
-                  <td>{{ material.food_item }}</td>
-                  <td>{{ material.quantity }}</td>
+                  <td>Flour</td>
+                  <td>50 kg</td>
                 </tr>
-                {% endfor %}
+                <tr>
+                  <td>Eggs</td>
+                  <td>200 pieces</td>
+                </tr>
+                <tr>
+                  <td>Sugar</td>
+                  <td>25 kg</td>
+                </tr>
+                <tr>
+                  <td>Chicken</td>
+                  <td>650 kg</td>
+                </tr>
+                <tr>
+                  <td>Rice</td>
+                  <td>120 kg</td>
+                </tr>
+                <tr>
+                  <td>Tomato</td>
+                  <td>32 kg</td>
+                </tr>
+                <tr>
+                  <td>Carrot</td>
+                  <td>25 kg</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -65,6 +91,5 @@
       </div>
     </div>
   </div>
-  {% endif %}
 </div>
-{% endblock content %}
+{% endblock %}

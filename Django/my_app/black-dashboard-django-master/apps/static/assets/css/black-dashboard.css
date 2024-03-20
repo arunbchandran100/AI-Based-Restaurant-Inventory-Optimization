@@ -11894,6 +11894,11 @@ table.tablesorter thead tr .headerSortDown {
   border-radius: 4px;
   letter-spacing: 0.05em; }
 
+  .bold-text {
+    font-weight: bold;
+  }
+  
+
 .color-swatch-body {
   position: relative;
   left: 50%;
