@@ -7,6 +7,14 @@ from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.template.loader import get_template
+
+template = get_template('home/user.html')
+
 
 def register(request):
     if request.method == 'POST':
@@ -21,6 +29,21 @@ def register(request):
     else:
         form = UserCreationForm()
     return render(request, 'register.html', {'form': form})
+
+
+@login_required
+def user_profile(request):
+    user = request.user
+    
+    if request.method == 'POST':
+        # Update user profile information
+        user.username = request.POST.get('username', user.username)
+        user.email = request.POST.get('email', user.email)
+        user.first_name = request.POST.get('full_name', user.first_name)
+        user.save()
+        messages.success(request, 'Profile updated successfully!')
+    
+    return render(request, 'home/user.html')
 
 
 
