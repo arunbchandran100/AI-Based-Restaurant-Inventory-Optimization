@@ -4,9 +4,14 @@ Input {% endblock %} {% block stylesheets %}
   .input-group {
     margin-bottom: 15px;
   }
+  .details-section {
+    display: none; /* Hide the details section by default */
+  }
+  .show-details {
+    display: block !important;
+  }
 </style>
 {% endblock stylesheets %} {% block content %}
-
 <div class="content">
   <div class="row">
     <div class="col-md-12">
@@ -46,9 +51,44 @@ Input {% endblock %} {% block stylesheets %}
         </div>
       </div>
     </div>
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title" style="font-weight: bold">
+              Food Item and Raw Material Details
+            </h5>
+          </div>
+          <div class="card-body details-section" id="details-section">
+            {% for food_item in food_items %}
+            <div class="card mb-3">
+              <div class="card-header">
+                <h5 class="card-title">{{ food_item.name }}</h5>
+              </div>
+              <div class="card-body">
+                <ul>
+                  {% for raw_material in food_item.rawmaterial_set.all %}
+                  <li>
+                    {{ raw_material.name }} - {{ raw_material.quantity }} {{
+                    raw_material.quantity_type }}
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="card-footer">
+            <button type="button" class="btn btn-primary" onclick="toggleDetails()">View Saved Food Items</button>
+
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
   function addRawMaterial(button) {
     var rawMaterialsDiv = document.getElementById("raw-materials");
@@ -66,7 +106,7 @@ Input {% endblock %} {% block stylesheets %}
           <select class="form-control" name="quantity_type[]">
             <option value="kg">kg</option>
             <option value="pieces">pieces</option>
-            </select>
+          </select>
         </div>
         <div class="col-md-2">
           <button type="button" class="btn btn-danger" onclick="removeRawMaterial(this)">Remove</button>
@@ -78,6 +118,11 @@ Input {% endblock %} {% block stylesheets %}
   function removeRawMaterial(button) {
     button.parentElement.parentElement.remove();
   }
+
+  function toggleDetails() {
+    $("#details-section").toggle();
+  }
 </script>
+
 
 {% endblock content %}
