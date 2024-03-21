@@ -47,20 +47,7 @@ def user_profile(request):
     return render(request, 'home/user.html')
 
 
-from django.shortcuts import render
 from django.http import JsonResponse
-from .models import FoodItem
-
-from django.http import JsonResponse
-from .models import FoodItem
-
-def fetch_food_items(request):
-    food_items = FoodItem.objects.all()
-    # Process food_items and prepare data as needed
-    data = {}  # Your data processing logic here
-    return JsonResponse(data, safe=False)
-
-
 from .models import FoodItem, RawMaterial
 
 def create_food_item(request):
@@ -73,11 +60,6 @@ def create_food_item(request):
     raw_material_names = request.POST.getlist('raw_material_name[]')
     quantities = request.POST.getlist('quantity[]')
     quantity_types = request.POST.getlist('quantity_type[]')
-
-    print("Raw Material Names:", raw_material_names)
-    print("Quantities:", quantities)
-    print("Quantity Types:", quantity_types)
-
 
     # Create RawMaterial objects for each entry in the lists
     for name, quantity, quantity_type in zip(raw_material_names, quantities, quantity_types):
@@ -97,6 +79,14 @@ def create_food_item(request):
     return render(request, 'home/raw_materials.html')  # Redirect to a success page after saving
 
   return render(request, 'home/raw_materials.html')
+
+
+
+def fetch_food_items(request):
+    food_items = FoodItem.objects.all()
+    data = [{'name': food_item.name, 'raw_materials': [{'name': rm.name, 'quantity': rm.quantity, 'quantity_type': rm.quantity_type} for rm in food_item.rawmaterial_set.all()]} for food_item in food_items]
+    return JsonResponse(data, safe=False)
+
 
 def get_food_items():
     # Fetch food items from the database

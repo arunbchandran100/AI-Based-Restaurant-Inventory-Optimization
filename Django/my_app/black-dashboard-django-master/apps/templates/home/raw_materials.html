@@ -126,43 +126,40 @@ Input {% endblock %} {% block stylesheets %}
 
   function toggleDetails() {
     $.ajax({
-      url: "{% url 'fetch_food_items' %}",
-      dataType: "json",
-      success: function (data) {
-        var detailsSection = $("#details-section");
-        detailsSection.empty(); // Clear existing content
+        url: "{% url 'fetch_food_items' %}",
+        dataType: 'json',
+        success: function(data) {
+            var detailsSection = $("#details-section");
+            detailsSection.empty(); // Clear existing content
 
-        // Iterate over the received data and create HTML elements to display food items and raw materials
-        $.each(data, function (index, foodItem) {
-          var card = $("<div>").addClass("card mb-3");
-          var cardHeader = $("<div>")
-            .addClass("card-header")
-            .append($("<h5>").addClass("card-title").text(foodItem.name));
-          var cardBody = $("<div>").addClass("card-body");
-          var ul = $("<ul>");
+            // Iterate over the received data and create HTML elements to display food items and raw materials
+            $.each(data, function(index, foodItem) {
+                var card = $("<div>").addClass("card mb-3");
+                var cardHeader = $("<div>").addClass("card-header").append($("<h5>").addClass("card-title").text(foodItem.name));
+                var cardBody = $("<div>").addClass("card-body");
+                var ul = $("<ul>");
 
-          // Iterate over raw materials for the current food item
-          $.each(foodItem.raw_materials, function (index, rawMaterial) {
-            var li = $("<li>").text(
-              rawMaterial.name +
-                " - " +
-                rawMaterial.quantity +
-                " " +
-                rawMaterial.quantity_type
-            );
-            ul.append(li);
-          });
+                // Iterate over raw materials for the current food item
+                $.each(foodItem.raw_materials, function(index, rawMaterial) {
+                    var li = $("<li>").text(rawMaterial.name + " - " + rawMaterial.quantity + " " + rawMaterial.quantity_type);
+                    ul.append(li);
+                });
 
-          cardBody.append(ul);
-          card.append(cardHeader, cardBody);
-          detailsSection.append(card);
-        });
+                cardBody.append(ul);
+                card.append(cardHeader, cardBody);
+                detailsSection.append(card);
+            });
 
-        // Show the details section
-        detailsSection.addClass("show-details");
-      },
+            // Show the details section
+            detailsSection.addClass("show-details");
+        },
+        error: function(xhr, status, error) {
+            console.log("Error fetching food items:", error);
+        }
     });
-  }
+}
+
+  
 </script>
 
 {% endblock content %}
