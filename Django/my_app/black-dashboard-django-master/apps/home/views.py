@@ -50,35 +50,36 @@ def user_profile(request):
 from django.http import JsonResponse
 from .models import FoodItem, RawMaterial
 
+
+from django import forms
+
+class FoodItemForm(forms.Form):
+    name = forms.CharField(max_length=100, required=True)
+    raw_material_name = forms.CharField(max_length=100, required=True)
+    quantity = forms.FloatField(required=True)
+
+
+from .forms import FoodItemForm
+
 def create_food_item(request):
-  if request.method == 'POST':
-      
-    food_item_name = request.POST.get('name')
-    food_item = FoodItem.objects.create(name=food_item_name)
+    if request.method == 'POST':
+        form = FoodItemForm(request.POST)
+        if form.is_valid():
+            food_item_name = form.cleaned_data['name']
+            raw_material_name = form.cleaned_data['raw_material_name']
+            quantity = form.cleaned_data['quantity']
+            
+            # Save data to the database
+            FoodItem.objects.create(name=food_item_name)
+            RawMaterial.objects.create(name=raw_material_name, quantity=quantity)
+            
+            # Redirect or render a success page
+            return render(request, 'success.html')
+    else:
+        form = FoodItemForm()
+    
+    return render(request, 'home/raw_materials.html', {'form': form})
 
-    # Access raw material data as lists of values submitted together
-    raw_material_names = request.POST.getlist('raw_material_name[]')
-    quantities = request.POST.getlist('quantity[]')
-    quantity_types = request.POST.getlist('quantity_type[]')
-
-    # Create RawMaterial objects for each entry in the lists
-    for name, quantity, quantity_type in zip(raw_material_names, quantities, quantity_types):
-      # Check if quantity is a valid number before creating the object
-      try:
-        quantity = float(quantity)  # Convert to a number (e.g., for calculations)
-      except ValueError:
-        quantity = None  # Handle invalid quantity input (optional)
-
-      RawMaterial.objects.create(
-          food_item=food_item,
-          name=name,
-          quantity=quantity,
-          quantity_type=quantity_type
-      )
-
-    return render(request, 'home/raw_materials.html')  # Redirect to a success page after saving
-
-  return render(request, 'home/raw_materials.html')
 
 
 
