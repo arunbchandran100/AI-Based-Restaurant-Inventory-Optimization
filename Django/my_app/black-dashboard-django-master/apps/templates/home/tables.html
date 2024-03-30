@@ -15,13 +15,32 @@
             {% csrf_token %}
             <div class="form-group">
               <label for="datasetFile">Select a dataset file</label>
-              <input type="file" class="form-control-file" id="datasetFile" name="dataset_file">
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" id="datasetFile" name="dataset_file" onchange="updateFileName(this)">
+                <label class="custom-file-label" for="datasetFile">Choose file</label>
+              </div>
             </div>
             <button type="submit" class="btn btn-primary">Upload</button>
           </form>
+          
+          
+          
+          {% if upload_success %}
+          <div class="alert alert-success" role="alert">
+            Upload successful! Random Forest Regression executed.
+          </div>
+          {% endif %}
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+  function updateFileName(input) {
+    var fileName = input.files[0].name;
+    var label = input.nextElementSibling;
+    label.innerHTML = fileName;
+  }
+</script>
 {% endblock content %}

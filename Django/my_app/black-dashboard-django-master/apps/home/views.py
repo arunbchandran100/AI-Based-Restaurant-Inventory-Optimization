@@ -143,3 +143,34 @@ def pages(request):
     except:
         html_template = loader.get_template('home/page-500.html')
         return HttpResponse(html_template.render(context, request))
+    
+    
+    
+    
+from django.shortcuts import render
+from django.http import HttpResponse
+import pandas as pd
+
+def upload_dataset(request):
+    if request.method == 'POST' and request.FILES['dataset_file']:
+        dataset_file = request.FILES['dataset_file']
+        try:
+            # Process the uploaded dataset file (e.g., perform Random Forest Regression)
+            # For simplicity, let's just read the dataset using pandas
+            dataset = pd.read_csv(dataset_file)
+            # Perform Random Forest Regression and any other necessary processing here
+
+            # Set upload_success to True to trigger the success message in the template
+            upload_success = True
+        except Exception as e:
+            # Handle any errors that occur during processing
+            # For example, display an error message or log the error
+            upload_success = False
+            print(f"Error processing dataset: {e}")
+    else:
+        # If the request method is not POST or no file is uploaded, set upload_success to False
+        upload_success = False
+
+    # Render the HTML template with the appropriate context
+    return render(request, 'tables.html', {'upload_success': upload_success})
+
