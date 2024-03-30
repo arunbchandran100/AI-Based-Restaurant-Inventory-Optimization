@@ -11,7 +11,7 @@
           <h4 class="card-title" style="font-weight: bold;">Upload Dataset</h4>
         </div>
         <div class="card-body">
-          <form method="post" enctype="multipart/form-data">
+          <form method="post" enctype="multipart/form-data" id="uploadForm">
             {% csrf_token %}
             <div class="form-group">
               <label for="datasetFile">Select a dataset file</label>
@@ -20,16 +20,9 @@
                 <label class="custom-file-label" for="datasetFile">Choose file</label>
               </div>
             </div>
-            <button type="submit" class="btn btn-primary">Upload</button>
+            <button type="button" class="btn btn-primary" onclick="submitForm()">Upload</button>
           </form>
-          
-          
-          
-          {% if upload_success %}
-          <div class="alert alert-success" role="alert">
-            Upload successful! Random Forest Regression executed.
-          </div>
-          {% endif %}
+          <div id="successMessage" style="display: none; font-weight: bold; font-size: larger;"></div>
         </div>
       </div>
     </div>
@@ -42,5 +35,22 @@
     var label = input.nextElementSibling;
     label.innerHTML = fileName;
   }
+
+  function submitForm() {
+    // Prevent the default form submission
+    event.preventDefault();
+
+    // Display success message
+    var successMessage = document.getElementById("successMessage");
+    successMessage.textContent = "Upload successful!";
+    successMessage.style.display = "block";
+
+    // Delay form submission for 2 seconds (2000 milliseconds)
+    setTimeout(function() {
+      document.getElementById("uploadForm").submit();
+    }, 2000);
+  }
 </script>
+
+
 {% endblock content %}
