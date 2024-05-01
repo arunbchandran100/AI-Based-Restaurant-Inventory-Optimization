@@ -1,6 +1,6 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Upload Dataset {% endblock %} 
+{% block title %} Upload Dataset and Predict {% endblock %}
 
 {% block content %}
 <div class="content">
@@ -8,8 +8,8 @@
     <div class="col-md-12">
       <div class="card">
         <div class="card-header">
-          <h4 class="card-title" style="font-weight: bold;">Upload Dataset</h4>
-        </div>  
+          <h4 class="card-title" style="font-weight: bold;">Upload Dataset and Make Predictions</h4>
+        </div>
         <div class="card-body">
           <form method="post" enctype="multipart/form-data" id="uploadForm">
             {% csrf_token %}
@@ -20,7 +20,35 @@
                 <label class="custom-file-label" for="datasetFile">Choose file</label>
               </div>
             </div>
-            <button type="button" class="btn btn-primary" onclick="submitForm()">Upload</button>
+            <!-- Additional form fields for data input -->
+            <div class="form-group">
+              <label for="Day">Day:</label>
+              <input type="number" class="form-control" id="Day" name="Day" required>
+            </div>
+            <div class="form-group">
+              <label for="Month">Month:</label>
+              <input type="number" class="form-control" id="Month" name="Month" required>
+            </div>
+            <div class="form-group">
+              <label for="Year">Year:</label>
+              <input type="number" class="form-control" id="Year" name="Year" required>
+            </div>
+            <div class="form-group">
+              <label for="Temperature">Temperature:</label>
+              <input type="number" step="0.01" class="form-control" id="Temperature" name="Temperature" required>
+            </div>
+            <div class="form-group">
+              <label for="Precipitation">Precipitation:</label>
+              <input type="number" step="0.01" class="form-control" id="Precipitation" name="Precipitation" required>
+            </div>
+            <div class="form-group">
+              <label for="SpecialOccasion">Special Occasion:</label>
+              <select class="form-control" id="SpecialOccasion" name="Special_Occasion">
+                <option value="1">Normal Day</option>
+                <option value="2">Special Occasion</option>
+              </select>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="submitForm()">Upload and Predict</button>
           </form>
           <div id="successMessage" style="display: none; font-weight: bold; font-size: larger;"></div>
         </div>
@@ -42,7 +70,7 @@
 
     // Display success message
     var successMessage = document.getElementById("successMessage");
-    successMessage.textContent = "Upload successful!";
+    successMessage.textContent = "Upload successful and prediction in progress!";
     successMessage.style.display = "block";
 
     // Delay form submission for 2 seconds (2000 milliseconds)
@@ -51,6 +79,5 @@
     }, 2000);
   }
 </script>
-
 
 {% endblock content %}

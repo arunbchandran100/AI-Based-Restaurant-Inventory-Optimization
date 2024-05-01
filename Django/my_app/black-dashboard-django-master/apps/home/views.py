@@ -143,9 +143,7 @@ def pages(request):
     except:
         html_template = loader.get_template('home/page-500.html')
         return HttpResponse(html_template.render(context, request))
-    
-    
-    
+ 
     
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
@@ -161,3 +159,75 @@ def upload_dataset(request):
         upload_success = False
 
     return render(request, 'upload_dataset.html', {'upload_success': upload_success})
+
+
+
+
+
+from django.shortcuts import render
+from django.http import HttpResponseRedirect, HttpResponse
+from django.urls import reverse
+from django.conf import settings
+import os
+import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+
+# Assuming the RandomForest model is pre-trained and saved
+def load_model():
+    # Load the pre-trained model
+    model_path = os.path.join(settings.BASE_DIR, 'model', 'random_forest_model.pkl')
+    model = pd.read_pickle(model_path)
+    return model
+
+# This view handles the dataset upload and prediction
+def upload_and_predict(request):
+    if request.method == 'POST':
+        # Handle file upload
+        if 'dataset_file' in request.FILES:
+            dataset_file = request.FILES['dataset_file']
+            dataset = pd.read_csv(dataset_file)
+
+            # Process dataset if necessary
+            X = dataset.drop(columns=['Qty'])
+            y = dataset['Qty']
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=60)
+
+            # Load model and make predictions
+            model = load_model()
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
+
+            # Store predictions to session or database if needed
+            request.session['predictions'] = y_pred.tolist()
+
+        # Handle direct prediction inputs
+        day = request.POST.get('Day')
+        month = request.POST.get('Month')
+        year = request.POST.get('Year')
+        temperature = request.POST.get('Temperature')
+        precipitation = request.POST.get('Precipitation')
+        special_occasion = request.POST.get('Special_Occasion')
+
+        # Form a DataFrame for the input
+        input_data = pd.DataFrame({
+            'Day': [day],
+            'Month': [month],
+            'Year': [year],
+            'Temperature': [temperature],
+            'Precipitation': [precipitation],
+            'Special Occasion': [special_occasion]
+        })
+
+        # Predict using the loaded model
+        model = load_model()
+        predicted_quantity = model.predict(input_data)[0]
+
+        # Pass the prediction to the template
+        return render(request, 'result.html', {
+            'predicted_quantity': predicted_quantity
+        })
+
+    # If not POST or no file is uploaded, show the form
+    return render(request, 'upload_dataset.html')
+
