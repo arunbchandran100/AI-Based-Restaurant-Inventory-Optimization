@@ -1,16 +1,14 @@
-{% extends "layouts/base.html" %}
-
-{% block title %}Dashboard{% endblock %}
-
+{% extends "layouts/base.html" %} {% block title %}Dashboard{% endblock %}
+<!-- http://127.0.0.1:8000/ml_req/?day=15&month=7&year=2023&temperature=27&precipitation=10&specialOccasion=1 -->
 {% block content %}
 <div class="content">
-  <div class="row">
+  <!-- <div class="row">
     <div class="col-md-6">
       <div class="card card-user">
         <div class="card-header">
-          <h5 class="card-title" style="font-weight: bold;">Enter Date Range</h5>
+          <h5 class="card-title" style="font-weight: bold">Enter Date Range</h5>
         </div>
-        
+
         <div class="card-body">
           <form method="POST">
             {% csrf_token %}
@@ -39,14 +37,102 @@
         </div>
       </div>
     </div>
+  </div> -->
+
+  <!-- ML Fileds -->
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card card-user">
+        <div class="card-header">
+          <h5 class="card-title" style="font-weight: bold">Enter Details</h5>
+        </div>
+
+        <div class="card-body">
+          <form id="ml-form">
+            <div class="row">
+              <div class="col-md-6 pr-1">
+                <div class="form-group">
+                  <label>Day</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    name="day"
+                    value="7"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Month</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    name="month"
+                    value="3"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Year</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    name="year"
+                    value="2023"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Temperature (C)</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    name="temperature"
+                    value="27"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Precipitation</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    name="precipitation"
+                    value="10"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Special Occasion</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    name="specialOccasion"
+                    value="1"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="update ml-auto mr-auto">
+                <button
+                  type="submit"
+                  id="submitBtn"
+                  class="btn btn-primary btn-round"
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
-  
+
   <!-- Mock data for presentation -->
   <div class="row">
     <div class="col-md-12">
       <div class="card">
         <div class="card-header">
-          <h5 class="card-title" style="font-weight: bold;">Required Raw Materials from 2024-03-01 to 2024-03-07</h5>
+          <h5 class="card-title" style="font-weight: bold">
+            Required Raw Materials
+          </h5>
+          <h4>Output Value: <span id="data">No Value</span></h4>
         </div>
         <div class="card-body">
           <div class="table-responsive">
@@ -54,35 +140,43 @@
               <thead class="text-primary">
                 <th>Raw Material</th>
                 <th>Required Quantity</th>
+                <th>Calculated Quantity</th>
               </thead>
               <tbody>
                 <tr>
                   <td>Flour</td>
-                  <td>50 kg</td>
+                  <td><input type="number" value="50" id="flour-qty" /></td>
+                  <td id="flour-calc"></td>
                 </tr>
                 <tr>
                   <td>Eggs</td>
-                  <td>200 pieces</td>
+                  <td><input type="number" value="200" id="eggs-qty" /></td>
+                  <td id="eggs-calc"></td>
                 </tr>
                 <tr>
                   <td>Sugar</td>
-                  <td>25 kg</td>
+                  <td><input type="number" value="25" id="sugar-qty" /></td>
+                  <td id="sugar-calc"></td>
                 </tr>
                 <tr>
                   <td>Chicken</td>
-                  <td>650 kg</td>
+                  <td><input type="number" value="650" id="chicken-qty" /></td>
+                  <td id="chicken-calc"></td>
                 </tr>
                 <tr>
                   <td>Rice</td>
-                  <td>120 kg</td>
+                  <td><input type="number" value="120" id="rice-qty" /></td>
+                  <td id="rice-calc"></td>
                 </tr>
                 <tr>
                   <td>Tomato</td>
-                  <td>32 kg</td>
+                  <td><input type="number" value="32" id="tomato-qty" /></td>
+                  <td id="tomato-calc"></td>
                 </tr>
                 <tr>
                   <td>Carrot</td>
-                  <td>25 kg</td>
+                  <td><input type="number" value="25" id="carrot-qty" /></td>
+                  <td id="carrot-calc"></td>
                 </tr>
               </tbody>
             </table>
@@ -92,4 +186,65 @@
     </div>
   </div>
 </div>
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+  const form = document.getElementById("ml-form");
+
+  function calculateQuantities(multiplier) {
+    const rows = document.querySelectorAll("tbody tr");
+    rows.forEach((row) => {
+      const qtyInput = row.querySelector('input[type="number"]');
+      const calcCell = row.querySelector("td:nth-child(3)");
+      const qtyValue = parseInt(qtyInput.value);
+      const calcValue = qtyValue * multiplier;
+      calcCell.textContent = calcValue;
+    });
+  }
+
+  form.onsubmit = async (e) => {
+    e.preventDefault(); // Prevent default form behavior
+    document.getElementById("submitBtn").innerText = "Loading...";
+
+    const day = document.querySelector('input[name="day"]').value;
+    const month = document.querySelector('input[name="month"]').value;
+    const year = document.querySelector('input[name="year"]').value;
+    const temperature = document.querySelector(
+      'input[name="temperature"]'
+    ).value;
+    const precipitation = document.querySelector(
+      'input[name="precipitation"]'
+    ).value;
+    const specialOccasion = document.querySelector(
+      'input[name="specialOccasion"]'
+    ).value;
+
+    try {
+      const response = await axios.get(`/ml_req/`, {
+        params: {
+          day,
+          month,
+          year,
+          temperature,
+          precipitation,
+          specialOccasion,
+        },
+      });
+
+      console.log(response);
+      document.getElementById("submitBtn").innerText = "Submit";
+      if (response.data.success) {
+        document.getElementById("data").innerText = response.data.value;
+        calculateQuantities(response.data.value);
+      } else {
+        document.getElementById("data").innerText = "Error";
+        calculateQuantities(0);
+        alert("Error");
+      }
+    } catch (error) {
+      document.getElementById("submitBtn").innerText = "Submit";
+      console.error(error);
+    }
+  };
+</script>
 {% endblock %}

@@ -5,6 +5,7 @@ from .views import user_profile
 from .views import create_food_item
 from django.urls import path
 from .views import upload_dataset
+# from .views import ml_req
 
 
 
@@ -21,10 +22,11 @@ urlpatterns = [
     path('/home/raw_materials.html', views.render_page, name='render_page'),
     path('fetch_food_items', views.fetch_food_items, name='fetch_food_items'),
 
+    path('ml_req/', views.ml_req, name='ml_req'),
+
     # Matches any html file
     re_path(r'^.*\.*', views.pages, name='pages'),
     
     path('upload/', upload_dataset, name='upload_dataset'),
-
 
 ]

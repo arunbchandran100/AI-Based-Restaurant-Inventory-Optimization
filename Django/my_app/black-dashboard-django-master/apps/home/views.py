@@ -18,6 +18,8 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, r2_score
+from django.http import JsonResponse
+from .models import FoodItem, RawMaterial
 
 template = get_template('home/user.html')
 
@@ -52,10 +54,6 @@ def user_profile(request):
     
     return render(request, 'home/user.html')
 
-
-from django.http import JsonResponse
-from .models import FoodItem, RawMaterial
-
 def create_food_item(request):
   if request.method == 'POST':
       
@@ -86,7 +84,77 @@ def create_food_item(request):
 
   return render(request, 'home/raw_materials.html')
 
+def ml_req(request):
+    print("Yes---------")
+    if request.method == 'GET':
+        # Update user profile information
+        Day = request.GET.get('day')
+        Month = request.GET.get('month')
+        Year = request.GET.get('year')
+        Temperature = request.GET.get('temperature')
+        Precipitation = request.GET.get('precipitation')
+        SpecialOccasion = request.GET.get('specialOccasion')
 
+        print('Day')
+        print(Day)
+        print('Month')
+        print(Month)
+        print('Year')
+        print(Year)
+        print('Temperature')
+        print(Temperature)
+        print('Precipitation')
+        print(Precipitation)
+        print('SpecialOccasion')
+        print(SpecialOccasion)
+        
+        # Load the dataset
+        # Make sure to upload the '12to22.csv' file in your environment
+        file_path = os.path.join(settings.BASE_DIR, '12to22.csv')
+        dataset = pd.read_csv(file_path)
+
+        # Split the dataset into features (X) and target variable (y)
+        X = dataset.drop(columns=['Qty'])  # Features
+        y = dataset['Qty']  # Target variable
+
+        # Split the data into training and testing sets
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=60)
+
+        # Initialize the Random Forest Regressor
+        rf_regressor = RandomForestRegressor(n_estimators=100, random_state=42)
+
+        # Train the model
+        rf_regressor.fit(X_train, y_train)
+
+        # Make predictions on the test set
+        y_pred = rf_regressor.predict(X_test)
+        """
+        # Calculate Mean Absolute Error and R^2 Score
+        mae = mean_absolute_error(y_test, y_pred)
+        r2 = r2_score(y_test, y_pred)
+        print("Mean Absolute Error:", mae)
+        print("R^2 Score:", r2)"""
+
+
+        # Example new data input including Day, Month, and Year
+        new_data = pd.DataFrame({
+            'Day': [Day],  # Example Day
+            'Month': [Month],  # Example Month
+            'Year': [Year],  # Example Year
+            'Temperature': [Temperature],
+            'Precipitation': [Precipitation],
+            'Special Occasion': [SpecialOccasion]
+        }, index=[0])
+
+        predicted_quantity = rf_regressor.predict(new_data)
+        print("Predicted Quantity:", predicted_quantity[0])
+        
+        data = {'success' : True, 'value' : predicted_quantity[0]}
+        return JsonResponse(data, safe=False)
+
+    data = {'success' : False}
+    return JsonResponse(data, safe=False)
+    
 
 def fetch_food_items(request):
     food_items = FoodItem.objects.all()
