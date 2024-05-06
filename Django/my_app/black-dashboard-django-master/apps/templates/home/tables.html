@@ -1,6 +1,6 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Upload Dataset and Predict {% endblock %}
+{% block title %}Upload Dataset{% endblock %}
 
 {% block content %}
 <div class="content">
@@ -8,49 +8,21 @@
     <div class="col-md-12">
       <div class="card">
         <div class="card-header">
-          <h4 class="card-title" style="font-weight: bold;">Upload Dataset and Make Predictions</h4>
+          <h4 class="card-title" style="font-weight: bold;">Upload Dataset</h4>
         </div>
         <div class="card-body">
-          <form method="post" enctype="multipart/form-data" id="uploadForm">
+          <form method="post" enctype="multipart/form-data" id="uploadForm" action="{% url 'upload_dataset' %}">
             {% csrf_token %}
             <div class="form-group">
               <label for="datasetFile">Select a dataset file</label>
               <div class="custom-file">
-                <input type="file" class="custom-file-input" id="datasetFile" name="dataset_file" onchange="updateFileName(this)">
+                <input type="file" class="custom-file-input" id="datasetFile" name="dataset_file" required onchange="updateFileName(this)">
                 <label class="custom-file-label" for="datasetFile">Choose file</label>
               </div>
             </div>
-            <!-- Additional form fields for data input -->
-            <div class="form-group">
-              <label for="Day">Day:</label>
-              <input type="number" class="form-control" id="Day" name="Day" required>
-            </div>
-            <div class="form-group">
-              <label for="Month">Month:</label>
-              <input type="number" class="form-control" id="Month" name="Month" required>
-            </div>
-            <div class="form-group">
-              <label for="Year">Year:</label>
-              <input type="number" class="form-control" id="Year" name="Year" required>
-            </div>
-            <div class="form-group">
-              <label for="Temperature">Temperature:</label>
-              <input type="number" step="0.01" class="form-control" id="Temperature" name="Temperature" required>
-            </div>
-            <div class="form-group">
-              <label for="Precipitation">Precipitation:</label>
-              <input type="number" step="0.01" class="form-control" id="Precipitation" name="Precipitation" required>
-            </div>
-            <div class="form-group">
-              <label for="SpecialOccasion">Special Occasion:</label>
-              <select class="form-control" id="SpecialOccasion" name="Special_Occasion">
-                <option value="1">Normal Day</option>
-                <option value="2">Special Occasion</option>
-              </select>
-            </div>
-            <button type="button" class="btn btn-primary" onclick="submitForm()">Upload and Predict</button>
+            <button type="submit" class="btn btn-primary">Upload</button>
           </form>
-          <div id="successMessage" style="display: none; font-weight: bold; font-size: larger;"></div>
+          <div id="messageContainer" style="margin-top: 20px;"></div>
         </div>
       </div>
     </div>
@@ -58,26 +30,40 @@
 </div>
 
 <script>
-  function updateFileName(input) {
+document.getElementById('uploadForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent the default form submission
+    var formData = new FormData(this);
+
+    fetch(this.action, {
+      method: 'POST',
+      body: formData,
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok: ' + response.statusText);
+      }
+      return response.json();
+    })
+    .then(data => {
+      displayMessage(data.message, data.success);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      displayMessage('Failed to submit form: ' + error.message, false);
+    });
+});
+
+function updateFileName(input) {
     var fileName = input.files[0].name;
     var label = input.nextElementSibling;
     label.innerHTML = fileName;
-  }
+}
 
-  function submitForm() {
-    // Prevent the default form submission
-    event.preventDefault();
-
-    // Display success message
-    var successMessage = document.getElementById("successMessage");
-    successMessage.textContent = "Upload successful and prediction in progress!";
-    successMessage.style.display = "block";
-
-    // Delay form submission for 2 seconds (2000 milliseconds)
-    setTimeout(function() {
-      document.getElementById("uploadForm").submit();
-    }, 2000);
-  }
+function displayMessage(message, isSuccess) {
+    var messageContainer = document.getElementById('messageContainer');
+    messageContainer.innerHTML = `<div class="alert ${isSuccess ? 'alert-success' : 'alert-danger'}">${message}</div>`;
+    messageContainer.style.display = 'block';
+}
 </script>
 
 {% endblock content %}

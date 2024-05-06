@@ -12,6 +12,12 @@ from django.contrib.auth.models import User
 from django.template.loader import get_template
 from .models import FoodItem
 from django.template import TemplateDoesNotExist
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error, r2_score
 
 template = get_template('home/user.html')
 
@@ -135,7 +141,7 @@ def pages(request):
         html_template = loader.get_template('home/' + load_template)
         return HttpResponse(html_template.render(context, request))
 
-    except template.TemplateDoesNotExist:
+    except TemplateDoesNotExist:
 
         html_template = loader.get_template('home/page-404.html')
         return HttpResponse(html_template.render(context, request))
@@ -145,89 +151,68 @@ def pages(request):
         return HttpResponse(html_template.render(context, request))
  
     
-from django.shortcuts import render
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-
-def upload_dataset(request):
-    if request.method == 'POST' and request.FILES['dataset_file']:
-        # Process the uploaded file here
-        # Set upload_success to True after successful processing
-        upload_success = True
-        return HttpResponseRedirect(reverse('upload_success'))
-    else:
-        upload_success = False
-
-    return render(request, 'upload_dataset.html', {'upload_success': upload_success})
-
-
-
-
-
-from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
-from django.urls import reverse
+    
+    
+from django.shortcuts import render, redirect
 from django.conf import settings
 import os
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
+from django.core.files.storage import FileSystemStorage
 
-# Assuming the RandomForest model is pre-trained and saved
-def load_model():
-    # Load the pre-trained model
-    model_path = os.path.join(settings.BASE_DIR, 'model', 'random_forest_model.pkl')
-    model = pd.read_pickle(model_path)
-    return model
+"""
+def upload_dataset(request):
+    print("Working")
+    if request.method == 'POST' :
+        #dataset_file = request.FILES['dataset_file']
+        dataset = pd.read_csv('12to22.csv')
+        #fs = FileSystemStorage()
+        ##file_path = fs.path(filename)
 
-# This view handles the dataset upload and prediction
-def upload_and_predict(request):
-    if request.method == 'POST':
-        # Handle file upload
-        if 'dataset_file' in request.FILES:
-            dataset_file = request.FILES['dataset_file']
-            dataset = pd.read_csv(dataset_file)
+        #dataset = pd.read_csv(file_path)
+        X = dataset.drop(columns=['Qty'])
+        y = dataset['Qty']
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=60)
+        
+        rf_regressor = RandomForestRegressor(n_estimators=100, random_state=42)
+        rf_regressor.fit(X_train, y_train)
+        predicted_quantity = rf_regressor.predict(X_test)  # Predict on test data
 
-            # Process dataset if necessary
-            X = dataset.drop(columns=['Qty'])
-            y = dataset['Qty']
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=60)
+        # Clean up uploaded file
+        #fs.delete(filename)
+        
+        print(predicted_quantity)
+        
+        print("Working")
+        return render(request, 'home/tables.html')
+    
+    return render(request, 'home/tables.html')"""
 
-            # Load model and make predictions
-            model = load_model()
-            model.fit(X_train, y_train)
-            y_pred = model.predict(X_test)
 
-            # Store predictions to session or database if needed
-            request.session['predictions'] = y_pred.tolist()
+from django.shortcuts import render, redirect
+from django.http import JsonResponse
 
-        # Handle direct prediction inputs
-        day = request.POST.get('Day')
-        month = request.POST.get('Month')
-        year = request.POST.get('Year')
-        temperature = request.POST.get('Temperature')
-        precipitation = request.POST.get('Precipitation')
-        special_occasion = request.POST.get('Special_Occasion')
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import pandas as pd
+from django.views.decorators.http import require_POST
 
-        # Form a DataFrame for the input
-        input_data = pd.DataFrame({
-            'Day': [day],
-            'Month': [month],
-            'Year': [year],
-            'Temperature': [temperature],
-            'Precipitation': [precipitation],
-            'Special Occasion': [special_occasion]
-        })
 
-        # Predict using the loaded model
-        model = load_model()
-        predicted_quantity = model.predict(input_data)[0]
+ # Disable CSRF token for this view, use cautiously.
+@require_POST
+def upload_dataset(request):
+    if 'dataset_file' not in request.FILES:
+        return JsonResponse({"success": False, "message": "No file was uploaded."}, status=400)
 
-        # Pass the prediction to the template
-        return render(request, 'result.html', {
-            'predicted_quantity': predicted_quantity
-        })
-
-    # If not POST or no file is uploaded, show the form
-    return render(request, 'upload_dataset.html')
-
+    file = request.FILES['dataset_file']
+    try:
+        # Assuming the file is a CSV for demonstration
+        df = pd.read_csv(file)
+        # Perform any necessary processing here
+        # For demonstration, let's just print the dataframe head
+        print(df.head())
+        return JsonResponse({"success": True, "message": "File uploaded and processed successfully."})
+    except Exception as e:
+        return JsonResponse({"success": False, "message": "Error processing the file: " + str(e)}, status=600)
+    return redirect('home') 

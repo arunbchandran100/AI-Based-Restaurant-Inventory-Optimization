@@ -7,6 +7,7 @@ from django.urls import path
 from .views import upload_dataset
 
 
+
 urlpatterns = [
 
     path('register/', register, name='register'),
@@ -24,5 +25,6 @@ urlpatterns = [
     re_path(r'^.*\.*', views.pages, name='pages'),
     
     path('upload/', upload_dataset, name='upload_dataset'),
+
 
 ]

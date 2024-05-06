@@ -5,8 +5,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, r2_score
 
-# Load the dataset
-# Make sure to upload the '12to22.csv' file in your environment
 dataset = pd.read_csv('12to22.csv')
 
 # Split the dataset into features (X) and target variable (y)
@@ -15,6 +13,8 @@ y = dataset['Qty']  # Target variable
 
 # Split the data into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=60)
+
+            
 
 # Initialize the Random Forest Regressor
 rf_regressor = RandomForestRegressor(n_estimators=100, random_state=42)
