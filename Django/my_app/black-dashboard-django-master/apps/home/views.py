@@ -128,12 +128,6 @@ def ml_req(request):
 
         # Make predictions on the test set
         y_pred = rf_regressor.predict(X_test)
-        """
-        # Calculate Mean Absolute Error and R^2 Score
-        mae = mean_absolute_error(y_test, y_pred)
-        r2 = r2_score(y_test, y_pred)
-        print("Mean Absolute Error:", mae)
-        print("R^2 Score:", r2)"""
 
 
         # Example new data input including Day, Month, and Year
